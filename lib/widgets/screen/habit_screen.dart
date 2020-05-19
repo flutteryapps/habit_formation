@@ -15,30 +15,28 @@ class HabitScreen extends StatelessWidget {
     return Consumer<HabitNotifier>(
       builder: (context, habitsNotifier, child) {
         return Scaffold(
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                physics: ScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    SizedBox(height: 32),
-                    TitleText("Habit Formation"),
-                    SizedBox(height: 32),
-                    ListView.builder(
-                      itemBuilder: (context, index) {
-                        final habit = habitsNotifier.habits[index];
-                        return getHabitInfo(habit.name, habit.repetition, index);
-                      },
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: habitsNotifier.getTotalCount(),
-                      shrinkWrap: true,
-                    )
-                  ],
+          body: CustomScrollView(
+            slivers: <Widget>[
+              SliverAppBar(
+                pinned: true,
+                backgroundColor: Color(0xFFEAEAF2),
+                expandedHeight: 110.0,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: TitleText('Habit Formation',
+                      fontSize: 24, color: Colors.black),
+                  centerTitle: false,
+                  titlePadding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 12.0),
                 ),
               ),
-            ),
+              SliverPadding(
+                  padding: EdgeInsets.only(top: 24, left: 16.0, right: 16.0),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final habit = habitsNotifier.habits[index];
+                      return getHabitInfo(habit.name, habit.repetition, index);
+                    }, childCount: habitsNotifier.habits.length),
+                  )),
+            ],
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
@@ -53,7 +51,7 @@ class HabitScreen extends StatelessWidget {
     );
   }
 
-  Widget getHabitInfo(String title, String frequency,int index) {
+  Widget getHabitInfo(String title, String frequency, int index) {
     return Stack(
       overflow: Overflow.visible,
       children: <Widget>[
