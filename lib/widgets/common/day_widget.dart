@@ -20,7 +20,6 @@ class DayWidget extends StatelessWidget {
         }
       },
       child: Container(
-        height: 80,
         child: Column(
           children: <Widget>[
             Text(
@@ -33,7 +32,7 @@ class DayWidget extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: trackingViewModel.isToday ? 16 : 20,
+              height: trackingViewModel.isToday ? 8 : 12,
             ),
             getWidgetIfHabitIsDone()
           ],

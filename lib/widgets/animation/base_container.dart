@@ -10,7 +10,6 @@ class BaseContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 188,
       margin: EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: color,

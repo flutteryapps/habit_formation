@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const LEFT_SECTION_WIDTH = 160.0;
+const LEFT_SECTION_WIDTH = 60.0;
 
 class SwipeAnimation extends StatefulWidget {
   final Widget child;
@@ -11,60 +11,32 @@ class SwipeAnimation extends StatefulWidget {
   _SwipeAnimationState createState() => _SwipeAnimationState();
 }
 
-class _SwipeAnimationState extends State<SwipeAnimation> {
+class _SwipeAnimationState extends State<SwipeAnimation>
+    with SingleTickerProviderStateMixin {
   double initialX = 0;
   double dx = 0;
+  double lastX = 0;
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-
     return GestureDetector(
       onHorizontalDragStart: (details) {
         initialX = details.globalPosition.dx;
       },
       onHorizontalDragUpdate: (details) {
-        double tempX = details.globalPosition.dx;
-//        if (tempX >= LEFT_SECTION_WIDTH) {
-//          translateX(LEFT_SECTION_WIDTH);
-//        } else {
-//          translateX(tempX);
-//        }
-
-
-
-        // translateX(tempX);
-
-        if (initialX > tempX) {
-          print("rtl");
-          translateX(tempX- initialX);
-          print(tempX- initialX);
-        } else {
-          print("ltr");
-          print(tempX);
-          translateX(tempX);
+        lastX = details.globalPosition.dx;
+        dx = (lastX - initialX);
+        if (dx >= 0 && dx < LEFT_SECTION_WIDTH) {
+          translateX(dx);
         }
-
-//        print(
-//            "${details.localPosition.dx}, ${details.globalPosition.dx} ${details.delta.dx}");
-//        switch (Directionality.of(context)) {
-//          case TextDirection.rtl:
-//
-//            break;
-//          case TextDirection.ltr:
-//            print("ltr");
-//            break;
-//        }
       },
       onHorizontalDragEnd: (details) {
-//        if (dx >= LEFT_SECTION_WIDTH) {
-//          resetPosition(2);
-//        } else if (dx >= LEFT_SECTION_WIDTH / 2) {
-//          translateX(LEFT_SECTION_WIDTH);
-//          resetPosition(2);
-//        } else {
-//          translateX(0);
-//        }
+        if (dx > LEFT_SECTION_WIDTH / 3) {
+          translateX(LEFT_SECTION_WIDTH);
+          resetPosition(2000);
+        } else {
+          resetPosition(200);
+        }
       },
       child: Transform.translate(
         offset: Offset(dx, 0),
@@ -73,14 +45,19 @@ class _SwipeAnimationState extends State<SwipeAnimation> {
     );
   }
 
-  void resetPosition(int seconds) {
-    Future.delayed(Duration(seconds: seconds), () => translateX(0));
+  void resetPosition(int milliseconds) {
+    Future.delayed(Duration(milliseconds: milliseconds), () {
+      setState(() {
+        this.dx = 0;
+        lastX = 0;
+      });
+    });
   }
 
   void translateX(double dx) {
+    if (dx < 0) return;
     setState(() {
       this.dx = dx;
     });
   }
 }
-// 167.66665649414062, 167.66665649414062 -0.333343505859375

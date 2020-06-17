@@ -4,11 +4,11 @@
 ![Image of Habit Formation](https://flutteryapps.com/assets/images/github/habit-formation.jpg)
 
 #### TODOs:
-- [ ] Edit and Delete habit details
 - [ ] Show month view of habit progress
 - [ ] Convert App to Bloc architecture
 - [ ] Show statistics of any habit
 - [ ] Optimize db operations
+- [x] Edit and Delete habit details
 - [x] Show month view of habit progress
 - [x] Screen to add a habit
 - [x] Update habit details in db

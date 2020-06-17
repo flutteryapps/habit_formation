@@ -39,6 +39,11 @@ class HabitNotifier extends ChangeNotifier {
     syncForFreshData();
   }
 
+  void updateHabitModel(HabitModel habitModel) async {
+    await _dbHelper.updateHabitModel(habitModel);
+    syncForFreshData();
+  }
+
   Future<void> markDone(TrackingViewModel trackingViewModel) async {
     if (trackingViewModel.id != -1) {
       await _dbHelper.deleteTrackingModel(trackingViewModel.id);
@@ -131,6 +136,16 @@ class HabitNotifier extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  HabitModel searchHabit(int habitId) {
+    return _habits.firstWhere((element) => element.id == habitId,
+        orElse: () => null);
+  }
+
+  void deleteHabit(int habitId) async {
+    await _dbHelper.deleteHabitAndData(habitId);
+    syncForFreshData();
   }
 
   UnmodifiableListView<HabitViewModel> get habits {
