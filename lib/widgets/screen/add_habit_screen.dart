@@ -18,130 +18,146 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
 
   DateTime selectedDate = CoreUtils.removeTimeComponent(DateTime.now());
   String frequency = 'Daily';
+  int habitId = -1;
+  HabitModel habitModel;
 
   @override
   void initState() {
     super.initState();
+  }
 
-    dateEditController.text = CoreUtils.getDateInDDMMYYYY(selectedDate);
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    habitId = ModalRoute.of(context).settings.arguments;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      SizedBox(height: 32),
-                      TitleText("New Habit"),
-                      SizedBox(height: 32),
-                      TextField(
-                        controller: nameEditController,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Enter a habit',
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Expanded(
-                            child: TextField(
-                              readOnly: true,
-                              controller: dateEditController,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Starting date',
-                              ),
-                              onTap: () =>
-                                  _showDatePickerForStartingDate(context),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 16,
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.calendar_today),
-                            onPressed: () =>
-                                _showDatePickerForStartingDate(context),
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        height: 16,
-                      ),
-                      Column(
+    return Consumer<HabitNotifier>(
+      builder: (context, habitsNotifier, child) {
+        if (habitModel == null) {
+          habitModel = habitsNotifier.searchHabit(habitId);
+          if (habitModel != null) {
+            nameEditController.text = habitModel.name;
+            selectedDate =
+                DateTime.fromMillisecondsSinceEpoch(habitModel.startingDate);
+            dateEditController.text = CoreUtils.getDateInDDMMYYYY(selectedDate);
+            frequency = habitModel.repetition;
+          }
+        }
+
+        dateEditController.text = CoreUtils.getDateInDDMMYYYY(selectedDate);
+
+        return Scaffold(
+          body: SafeArea(
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            "Frequency",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          SizedBox(height: 32),
+                          TitleText(habitModel != null
+                              ? "Update Habit"
+                              : "New Habit"),
+                          SizedBox(height: 32),
+                          TextField(
+                            controller: nameEditController,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Enter a habit',
                             ),
                           ),
-                          SizedBox(height: 12),
+                          SizedBox(height: 16),
                           Row(
                             mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              _getRadioWidget('Daily', false),
-                              _getRadioWidget('Thrice a week', false)
+                              Expanded(
+                                child: TextField(
+                                  readOnly: true,
+                                  controller: dateEditController,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    labelText: 'Starting date',
+                                  ),
+                                  onTap: () =>
+                                      _showDatePickerForStartingDate(context),
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              IconButton(
+                                icon: Icon(Icons.calendar_today),
+                                onPressed: () =>
+                                    _showDatePickerForStartingDate(context),
+                              )
                             ],
                           ),
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
+                          SizedBox(height: 16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              _getRadioWidget('Four times a week', false),
-                              _getRadioWidget('Once in a week', true)
+                              Text(
+                                "Frequency",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  _getRadioWidget('Daily', false),
+                                  _getRadioWidget('Thrice a week', false)
+                                ],
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  _getRadioWidget('Four times a week', false),
+                                  _getRadioWidget('Once in a week', true)
+                                ],
+                              )
                             ],
-                          )
+                          ),
+                          SizedBox(height: 16),
+                          Container(
+                            width: double.infinity,
+                            child: RaisedButton(
+                              child: Text(
+                                "SAVE",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: () {
+                                final habitName = nameEditController.text;
+                                if (habitName != null && habitName.isNotEmpty) {
+                                  if (habitId != -1) {
+                                    _updateNewHabit(habitId, habitName);
+                                  } else {
+                                    _createNewHabit(habitName);
+                                  }
+                                }
+                              },
+                            ),
+                          ),
                         ],
                       ),
-                      SizedBox(height: 16),
-                      Container(
-                        width: double.infinity,
-                        child: RaisedButton(
-                          child: Text(
-                            "SAVE",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          onPressed: () {
-                            final habitName = nameEditController.text;
-                            if (habitName != null && habitName.isNotEmpty) {
-                              final habitModel = HabitModel(
-                                  name: habitName,
-                                  startingDate:
-                                      selectedDate.millisecondsSinceEpoch,
-                                  repetition: frequency);
-                              Provider.of<HabitNotifier>(context, listen: false)
-                                  .addHabit(habitModel);
-                              Navigator.pop(context);
-                            }
-                          },
-                        ),
-                      )
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -194,5 +210,27 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         ],
       ),
     );
+  }
+
+  void _createNewHabit(String habitName) {
+    final habitModel = HabitModel(
+        name: habitName,
+        startingDate: selectedDate.millisecondsSinceEpoch,
+        repetition: frequency);
+
+    Provider.of<HabitNotifier>(context, listen: false).addHabit(habitModel);
+    Navigator.pop(context);
+  }
+
+  void _updateNewHabit(int habitId, String habitName) {
+    final habitModel = HabitModel(
+        id: habitId,
+        name: habitName,
+        startingDate: selectedDate.millisecondsSinceEpoch,
+        repetition: frequency);
+
+    Provider.of<HabitNotifier>(context, listen: false)
+        .updateHabitModel(habitModel);
+    Navigator.pop(context);
   }
 }

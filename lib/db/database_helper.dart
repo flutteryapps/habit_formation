@@ -51,6 +51,13 @@ class DatabaseHelper {
     return await db.insert(HabitModel.TABLE_NAME, row);
   }
 
+  Future<int> updateHabitModel(HabitModel habitModel) async {
+    Database db = await instance.database;
+    Map<String, dynamic> row = habitModel.getRow();
+    return await db.update(HabitModel.TABLE_NAME, row,
+        where: '${HabitModel.COLUMN_ID} = ?', whereArgs: [habitModel.id]);
+  }
+
   Future<int> insertTrackingModel(TrackingModel trackingModel) async {
     Database db = await instance.database;
     Map<String, dynamic> row = trackingModel.getRow();
@@ -99,6 +106,14 @@ class DatabaseHelper {
     //.then((value) => value.map((e) => TrackingModel.getTrackingModelFromRow(e)).toList());
   }
 
+  Future<void> deleteHabitAndData(int habitId) async {
+    Database db = await instance.database;
+    await db.delete(HabitModel.TABLE_NAME,
+        where: '${HabitModel.COLUMN_ID} = ?', whereArgs: [habitId]);
+    await db.delete(TrackingModel.TABLE_NAME,
+        where: '${TrackingModel.COLUMN_HABIT_ID} = ?', whereArgs: [habitId]);
+  }
+
 //  // All of the methods (insert, query, update, delete) can also be done using
 //  // raw SQL commands. This method uses a raw query to give the row count.
 //  Future<int> queryRowCount() async {
@@ -117,8 +132,4 @@ class DatabaseHelper {
 //
 //  // Deletes the row specified by the id. The number of affected rows is
 //  // returned. This should be 1 as long as the row exists.
-//  Future<int> delete(int id) async {
-//    Database db = await instance.database;
-//    return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
-//  }
 }
