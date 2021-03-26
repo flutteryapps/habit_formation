@@ -19,8 +19,5 @@
 * sprintf: ^4.0.2
 * provider: ^4.0.5
 
-#### Created By:
-https://flutteryapps.com/
-
 #### Design Inspirations:
 https://dribbble.com/shots/10428807/attachments/2269961?mode=media
